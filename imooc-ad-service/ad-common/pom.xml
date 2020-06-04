@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- 指定父pom,注意它是 imooc-ad-service的子模块 -->
+    <parent>
+        <artifactId>imooc-ad-service</artifactId>
+        <groupId>com.imooc.ad</groupId>
+        <version>1.0-SHAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 当前项目/模块的坐标,groupId 从父模块中继承 -->
+    <artifactId>ad-common</artifactId>
+    <version>1.0-SHAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- 引入web模块 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.31</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
