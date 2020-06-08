@@ -1,5 +1,5 @@
 server:
-  port: 9003
+  port: 9000 #端口可能被占用
 spring:
   application:
     name: ad-gateway
@@ -7,3 +7,12 @@ eureka:
   client:
     service-url:
       defaultZone: http://server1:8000/eureka/
+
+zuul:
+  prefix: /imooc
+  routes:
+    sponsor:  #路由名称任意
+      path: /ad-sponsor/** #通配符 **任意数量字符以及多集目录 ?任意单个字符 * 任意数量字符
+      serviceId: eureka-client-ad-sponsor #微服务的名字
+      strip-prefix: false #设置不跳过前缀
+      # 127.0.0.1:9000/imooc/ad-sponsor/create/adPlan
