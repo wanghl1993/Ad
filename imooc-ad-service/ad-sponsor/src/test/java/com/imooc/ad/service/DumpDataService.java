@@ -193,7 +193,7 @@ public class DumpDataService {
         List<AdCreativeUnitTable> creativeUnitTables = new ArrayList<>();
         creativeUnitTables.forEach(c -> creativeUnitTables.add(
                 new AdCreativeUnitTable(
-                        c.getCreativeId(),    //c.getCreativeId() ??
+                        c.getAdId(),    //c.getCreativeId() ??
                         c.getUnitId()
                 )
         ));
