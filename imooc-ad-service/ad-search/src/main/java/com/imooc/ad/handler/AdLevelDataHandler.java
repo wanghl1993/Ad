@@ -14,6 +14,7 @@ import com.imooc.ad.index.creativeunit.CreativeUnitIndex;
 import com.imooc.ad.index.creativeunit.CreativeUnitObject;
 import com.imooc.ad.index.district.UnitDistrictIndex;
 import com.imooc.ad.index.interest.UnitItIndex;
+import com.imooc.ad.index.keyword.UnitKeywordIndex;
 import com.imooc.ad.mysql.constant.OpType;
 import com.imooc.ad.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -158,7 +159,7 @@ public class AdLevelDataHandler {
         );
     }
 
-    private static void handleLevel4(AdUnitItTable unitItTable,
+    public static void handleLevel4(AdUnitItTable unitItTable,
                                      OpType type){
 
 
@@ -187,9 +188,31 @@ public class AdLevelDataHandler {
         );
     }
 
-    private static void handleLevel4(AdUnitKeywordTable unitKeywordTable,
+    public static void handleLevel4(AdUnitKeywordTable keywordTable,
                                      OpType type){
+        if(type == OpType.UPDATE){
+            log.error("keyword index can not support update");
+            return;
+        }
 
+        AdUnitObject unitObject = DataTable.of(
+                AdUnitIndex.class
+        ).get(keywordTable.getUnitId());
+        if(unitObject == null){
+            log.error("AdUnitKeywordTable index error: {}",
+                    keywordTable.getUnitId());
+            return;
+        }
+
+        Set<Long> value = new HashSet<>(
+                Collections.singleton(keywordTable.getUnitId())
+        );
+        handleBinlogEvent(
+                DataTable.of(UnitKeywordIndex.class),
+                keywordTable.getKeyword(),
+                value,
+                type
+        );
     }
 
     //可以处理全、增量索引更新过程
