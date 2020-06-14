@@ -1,8 +1,17 @@
 package com.imooc.ad.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.time.DateUtils;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@Slf4j
 public class CommonUtils {
 
     public static <K,V> V getorCreate(K key, Map<K,V> map,
@@ -20,4 +29,28 @@ public class CommonUtils {
         result.deleteCharAt(result.length() - 1); //删掉末尾的
         return result.toString();
     }
+
+    /**
+     *      '2019-01-01 00:00:00'
+     *      Tue Jan 01 08:00:00 CST 2019  +8小时
+      */
+    public static Date parseStringDate(String dateString){
+        try {
+
+            DateFormat dateFormat = new SimpleDateFormat(
+                    "EEE MMM dd HH:mm:ss zzz yyyy",
+                    Locale.US
+            );
+            return DateUtils.addHours(
+                    dateFormat.parse(dateString),
+                    -8
+            );
+
+        } catch (ParseException ex) {
+            log.error("parseStringDate error: {}", dateString);
+            return null;
+        }
+
+    }
+
 }

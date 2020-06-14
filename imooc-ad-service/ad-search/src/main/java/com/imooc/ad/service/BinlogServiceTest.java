@@ -23,6 +23,12 @@ public class BinlogServiceTest {
 //    [11, 10, 奔驰]
 //]}
 
+//    Write---------------
+//    WriteRowsEventData{tableId=96, includedColumns={0, 1, 2, 3, 4, 5, 6, 7}, rows=[
+//    [10, 10, plan, 1, Tue Jan 01 08:00:00 CST 2019, Tue Jan 01 08:00:00 CST 2019, Tue Jan 01 08:00:00 CST 2019, Tue Jan 01 08:00:00 CST 2019]
+//]}
+
+//    Tue Jan 01 08:00:00 CST 2019  +8小时
     public static void main(String[] args) throws Exception {
 
         BinaryLogClient client = new BinaryLogClient(
