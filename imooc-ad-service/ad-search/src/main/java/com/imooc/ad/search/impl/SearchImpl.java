@@ -1,7 +1,13 @@
 package com.imooc.ad.search.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.imooc.ad.index.CommonStatus;
 import com.imooc.ad.index.DataTable;
 import com.imooc.ad.index.adunit.AdUnitIndex;
+import com.imooc.ad.index.adunit.AdUnitObject;
+import com.imooc.ad.index.creative.CreativeIndex;
+import com.imooc.ad.index.creative.CreativeObject;
+import com.imooc.ad.index.creativeunit.CreativeUnitIndex;
 import com.imooc.ad.index.district.UnitDistrictIndex;
 import com.imooc.ad.index.interest.UnitItIndex;
 import com.imooc.ad.index.keyword.UnitKeywordIndex;
@@ -13,7 +19,6 @@ import com.imooc.ad.search.vo.feature.FeatureRelation;
 import com.imooc.ad.search.vo.feature.ItFeature;
 import com.imooc.ad.search.vo.feature.KeywordFeature;
 import com.imooc.ad.search.vo.media.AdSlot;
-import javassist.compiler.ast.Keyword;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -73,9 +78,35 @@ public class SearchImpl implements ISearch {
                         itFeature
                 );
             }
+
+            List<AdUnitObject> unitObjects =
+                    DataTable.of(AdUnitIndex.class).fetch(targetUnitIdSet);
+
+            filterAdUnitAndPlanStatus(unitObjects, CommonStatus.VALID);
+
+            List<Long> adIds = DataTable.of(CreativeUnitIndex.class)
+                    .selectAds(unitObjects);
+            List<CreativeObject> creatives = DataTable.of(CreativeIndex.class)
+                    .fetch(adIds);
+
+            //通过 AdSlot 实现对 CreativeObject 的过滤
+            filterCreativeByAdSlot(
+                    creatives,
+                    adSlot.getWidth(),
+                    adSlot.getHeight(),
+                    adSlot.getType()
+            );
+
+            adSlot2Ads.put(
+                    adSlot.getAdSlotCode(), buildCreativeResponse(creatives)
+            );
         }
 
-        return null;
+        log.info("fetchAds: {}-{}",
+                JSON.toJSONString(request),
+                JSON.toJSONString(response));
+
+        return response;
     }
 
     private Set<Long> getOrRelationUnitIds(Set<Long> adUnitIdSet,
@@ -109,7 +140,6 @@ public class SearchImpl implements ISearch {
         if(CollectionUtils.isEmpty(adUnitIds)) {
             return;
         }
-
         if(CollectionUtils.isNotEmpty(keywordFeature.getKeywords())) {
 
             CollectionUtils.filter(
@@ -155,5 +185,54 @@ public class SearchImpl implements ISearch {
                                     .match(adUnitId, itFeature.getIts())
             );
         }
+    }
+
+    private void filterAdUnitAndPlanStatus(List<AdUnitObject> unitObjects,
+                                           CommonStatus status) {
+
+        if(CollectionUtils.isEmpty(unitObjects)) {
+            return;
+        }
+
+        CollectionUtils.filter(
+                unitObjects,
+                object -> object.getUnitStatus().equals(status.getStatus())
+                && object.getAdPlanObject().getPlanStatus().equals(status.getStatus())
+        );
+    }
+
+    private void filterCreativeByAdSlot(List<CreativeObject> creatives,
+                                        Integer width,
+                                        Integer height,
+                                        List<Integer> type) {
+
+        if(CollectionUtils.isEmpty(creatives)) {
+            return;
+        }
+
+        CollectionUtils.filter(
+                creatives,
+                creative ->
+                        creative.getAuditStatus().equals(CommonStatus.VALID.getStatus())
+                && creative.getWidth().equals(width)
+                && creative.getHeight().equals(height)
+                && type.contains(creative.getType())
+        );
+    }
+
+    private List<SearchResponse.Creative> buildCreativeResponse(
+            List<CreativeObject> creatives) {
+
+        if(CollectionUtils.isEmpty(creatives)) {
+            return Collections.emptyList();
+        }
+
+        CreativeObject randomObject = creatives.get(
+                Math.abs(new Random().nextInt()) % creatives.size()
+        );
+
+        return Collections.singletonList(
+                SearchResponse.convert(randomObject)
+        );
     }
 }
